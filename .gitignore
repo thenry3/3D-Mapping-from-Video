@@ -1,0 +1,5 @@
+build
+.vscode
+*.lock
+lib
+__pycache__
