@@ -1,13 +1,8 @@
 import numpy as np
 from window import Window
 import cv2
-import sys
 from frame import Frame, match, denormalize_point, IRt
-from direct.showbase.ShowBase import ShowBase
-from pandac.PandaModules import *
-from direct.directtools.DirectGeometry import LineNodePath
-from multiprocessing import Process, Queue
-from timeit import default_timer as timer
+from space import Space, Node
 
 # video resize dimensions
 # originally 1920 x 1080
@@ -19,90 +14,26 @@ F = 270
 # intrinsic paramters
 K = np.array([[F, 0, WIDTH//2], [0, F, HEIGHT//2], [0, 0, 1]])
 
-queue = Queue()
-
-
-class Space(ShowBase):
-    def __init__(self):
-        ShowBase.__init__(self)
-        self.frames = []
-        self.nodes = []
-        self.state = None
-
-        ls = LineSegs()
-        ls.setThickness(10)
-
-        # X axis
-        ls.setColor(1.0, 0.0, 0.0, 1.0)
-        ls.moveTo(0.0, 0.0, 0.0)
-        ls.drawTo(1.0, 0.0, 0.0)
-
-        # Y axis
-        ls.setColor(0.0, 1.0, 0.0, 1.0)
-        ls.moveTo(0.0, 0.0, 0.0)
-        ls.drawTo(0.0, 1.0, 0.0)
-
-        # Z axis
-        ls.setColor(0.0, 0.0, 1.0, 1.0)
-        ls.moveTo(0.0, 0.0, 0.0)
-        ls.drawTo(0.0, 0.0, 1.0)
-
-        node = ls.create()
-        render.attachNewNode(node)
-
-    def refresh(self, q):
-        if self.state is None or not queue.empty():
-            self.state = queue.get()
-
-        if len(self.state[0]) > 20:
-            start = self.state[0][-20]
-            end = self.state[0][-10]
-            base.camera.setPos(start[0, 3], start[1, 3], start[2, 3])
-            base.camera.setHpr(LVecBase3f(
-                end[0, 3] - start[0, 3], end[1, 3] - start[1, 3], end[2, 3] - start[2, 3]))
-            print(end[0, 3] - start[0, 3])
-        LNP = LineNodePath(render, 'box', 4, VBase4(1, 0, 0, 1))
-        LNP.drawLines([[d[:3, 3] for d in self.state[0]]])
-        LNP.create()
-
-        lsp = LineSegs()
-        lsp.setThickness(2)
-        lsp.setColor(0, 1, 0)
-        for pos in self.state[1]:
-            lsp.moveTo(pos[0], pos[1], pos[2])
-            lsp.drawTo(pos[0], pos[1], pos[2] + 1)
-
-        render.attachNewNode(lsp.create())
-
-    def display(self):
-        poses, points = [], []
-        for frame in self.frames:
-            poses.append(frame.pose)
-        for node in self.nodes:
-            points.append(node.location)
-        queue.put((poses, points))
-        self.refresh(queue)
-
-
-class Node():
-    def __init__(self, space, location):
-        self.frames = []
-        self.location = location
-        self.indexes = []
-        self.ID = len(space.nodes)
-        space.nodes.append(self)
-
-    def add_frame(self, frame, index):
-        self.frames.append(frame)
-        self.indexes.append(index)
-
-
 window = Window(HEIGHT, WIDTH)
 space = Space()
 
 
 def triangulate(pose1, pose2, points1, points2):
-    return cv2.triangulatePoints(pose1[:3], pose2[:3], points1.T, points2.T).T
+    #print(points1)
+    ret = np.zeros((points1.shape[0], 4))
+    pose1 = np.linalg.inv(pose1)
+    pose2 = np.linalg.inv(pose2)
+    for i, p in enumerate(zip(points1, points2)):
+        A = np.zeros((4,4))
+        A[0] = p[0][0] * pose1[2] - pose1[0]
+        A[1] = p[0][1] * pose1[2] - pose1[1]
+        A[2] = p[1][0] * pose2[2] - pose2[0]
+        A[3] = p[1][1] * pose2[2] - pose2[1]
+        _, _, vt = np.linalg.svd(A)
+        ret[i] = vt[3]
+    return ret
+    # return cv2.triangulatePoints(pose1[:3], pose2[:3], points1.T, points2.T).T
+
 
 
 def process_frame(frame_img):
@@ -141,23 +72,10 @@ def process_frame(frame_img):
     window.render(frame_img)
 
     space.display()
-    taskMgr.step()
-
-
-def loop(queue):
-    while 1:
-        space.refresh(queue)
-        taskMgr.step()
 
 
 if __name__ == "__main__":
     vid = cv2.VideoCapture("test.mp4")
-    # p = Process(target=loop, args=(queue,))
-    # p.daemon = True
-    # p.start()
-    # base.disableMouse()
-    base.camera.setPos(0, 20, 0)
-    start = timer()
     while vid.isOpened():
         result, frame = vid.read()
 
@@ -165,6 +83,3 @@ if __name__ == "__main__":
             process_frame(frame)
         else:
             break
-
-    while 1:
-        tskMgr.step()
