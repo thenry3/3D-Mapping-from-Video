@@ -19,20 +19,18 @@ space = Space()
 
 
 def triangulate(pose1, pose2, points1, points2):
-    #print(points1)
     ret = np.zeros((points1.shape[0], 4))
     pose1 = np.linalg.inv(pose1)
     pose2 = np.linalg.inv(pose2)
     for i, p in enumerate(zip(points1, points2)):
-        A = np.zeros((4,4))
-        A[0] = p[0][0] * pose1[2] - pose1[0]
-        A[1] = p[0][1] * pose1[2] - pose1[1]
-        A[2] = p[1][0] * pose2[2] - pose2[0]
-        A[3] = p[1][1] * pose2[2] - pose2[1]
-        _, _, vt = np.linalg.svd(A)
-        ret[i] = vt[3]
+        temp = np.zeros((4,4))
+        temp[0] = p[0][0] * pose1[2] - pose1[0]
+        temp[1] = p[0][1] * pose1[2] - pose1[1]
+        temp[2] = p[1][0] * pose2[2] - pose2[0]
+        temp[3] = p[1][1] * pose2[2] - pose2[1]
+        s, v, d = np.linalg.svd(temp)
+        ret[i] = d[3]
     return ret
-    # return cv2.triangulatePoints(pose1[:3], pose2[:3], points1.T, points2.T).T
 
 
 
