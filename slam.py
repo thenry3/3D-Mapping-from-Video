@@ -1,4 +1,5 @@
 import numpy as np
+import sys
 from window import Window
 import cv2
 from frame import Frame, match, denormalize_point, IRt
@@ -10,7 +11,7 @@ HEIGHT = 960
 WIDTH = 540
 
 # focal length
-F = 270
+F = 800
 # intrinsic paramters
 K = np.array([[F, 0, WIDTH//2], [0, F, HEIGHT//2], [0, 0, 1]])
 
@@ -73,7 +74,16 @@ def process_frame(frame_img):
 
 
 if __name__ == "__main__":
-    vid = cv2.VideoCapture("test.mp4")
+    if len(sys.argv) < 0:
+        print("NO U FOOL PUT IN A VIDEO")
+        exit(1)
+    
+    try:
+        vid = cv2.VideoCapture(sys.argv[1])
+    except:
+        print("NO U FOOL U NEED A FREAKING VIDEO")
+        exit(1)
+        
     while vid.isOpened():
         result, frame = vid.read()
 

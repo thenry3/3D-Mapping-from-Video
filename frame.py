@@ -20,9 +20,9 @@ def denormalize_point(Kmatrix, point):
     return int(round(normalized[0])), int(round(normalized[1]))
 
 
-def extractRt(E):
+def extractRt(frame):
     W = np.mat([[0, -1, 0], [1, 0, 0], [0, 0, 1]], dtype=float)
-    U, d, Vt = np.linalg.svd(E)
+    U, d, Vt = np.linalg.svd(frame)
     assert np.linalg.det(U) > 0
     if np.linalg.det(Vt) < 0:
         Vt *= -1.0
@@ -47,11 +47,13 @@ def match(frame1, frame2):
     for m1, m2 in matches:
         if m1.distance < 0.75 * m2.distance:
             pt1 = frame1.points[m1.queryIdx]
-            index1.append(m1.queryIdx)
-
             pt2 = frame2.points[m1.trainIdx]
-            index2.append(m1.trainIdx)
-            matched_points.append((pt1, pt2))
+
+            if np.linalg.norm((pt1 - pt2)) < 0.1:
+                index1.append(m1.queryIdx)
+                index2.append(m1.trainIdx)
+
+                matched_points.append((pt1, pt2))
 
     matched_points = np.array(matched_points)
     index1 = np.array(index1)
@@ -87,7 +89,7 @@ class Frame():
         orb = cv2.ORB_create()
 
         features = cv2.goodFeaturesToTrack(
-            np.mean(self.frame_img, axis=2).astype(np.uint8), 3000, 0.01, 3)
+            np.mean(self.frame_img, axis=2).astype(np.uint8), 10000, 0.01, 3)
 
         key_points = [cv2.KeyPoint(x=point[0][0], y=point[0][1], _size=10)
                       for point in features]

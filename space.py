@@ -6,6 +6,9 @@ import OpenGL.GL as gl
 import numpy as np
 from multiprocessing import Process, Queue
 
+HEIGHT = 960
+WIDTH = 540
+
 class Space():
     def __init__(self):
         self.frames = []
@@ -29,8 +32,8 @@ class Space():
         gl.glEnable(gl.GL_DEPTH_TEST)
 
         self.scam = pangolin.OpenGlRenderState(
-            pangolin.ProjectionMatrix(640, 480, 420, 420, 320, 240, 0.2, 100), 
-            pangolin.ModelViewLookAt(-2, 2, -2, 0, 0, 0, pangolin.AxisDirection.AxisY))
+            pangolin.ProjectionMatrix(WIDTH, HEIGHT, 420, 420, WIDTH//2, HEIGHT//2, 0.2, 500000), 
+            pangolin.ModelViewLookAt(-2, 2, -2, 0, 0, 0, pangolin.AxisDirection.AxisNegY))
         self.handler = pangolin.Handler3D(self.scam)
 
         self.dcam = pangolin.CreateDisplay()
@@ -45,7 +48,7 @@ class Space():
         spts = np.array(self.state[1])
 
         gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
-        gl.glClearColor(1.0, 1.0, 1.0, 1.0)
+        gl.glClearColor(0, 0, 0, 1.0)
         self.dcam.Activate(self.scam)
 
         gl.glPointSize(10)
