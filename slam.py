@@ -20,18 +20,18 @@ space = Space()
 
 
 def triangulate(pose1, pose2, points1, points2):
-    ret = np.zeros((points1.shape[0], 4))
+    triangulation = np.zeros((points1.shape[0], 4))
     pose1 = np.linalg.inv(pose1)
     pose2 = np.linalg.inv(pose2)
-    for i, p in enumerate(zip(points1, points2)):
+    for i, point in enumerate(zip(points1, points2)):
         temp = np.zeros((4,4))
-        temp[0] = p[0][0] * pose1[2] - pose1[0]
-        temp[1] = p[0][1] * pose1[2] - pose1[1]
-        temp[2] = p[1][0] * pose2[2] - pose2[0]
-        temp[3] = p[1][1] * pose2[2] - pose2[1]
+        temp[0] = point[0][0] * pose1[2] - pose1[0]
+        temp[1] = point[0][1] * pose1[2] - pose1[1]
+        temp[2] = point[1][0] * pose2[2] - pose2[0]
+        temp[3] = point[1][1] * pose2[2] - pose2[1]
         s, v, d = np.linalg.svd(temp)
-        ret[i] = d[3]
-    return ret
+        triangulation[i] = d[3]
+    return triangulation
 
 
 
@@ -45,6 +45,14 @@ def process_frame(frame_img):
     prev_frame = space.frames[-2]
 
     index1, index2, Rt = match(curr_frame, prev_frame)
+
+    for point1, point2 in zip(curr_frame.points[index1], prev_frame.points[index2]):
+        pt1_x, pt1_y = denormalize_point(K, point1)
+        pt2_x, pt2_y = denormalize_point(K, point2)
+
+        cv2.circle(frame_img, (pt1_x, pt1_y), 3, (255, 0, 0))
+        cv2.line(frame_img, (pt1_x, pt1_y), (pt2_x, pt2_y), (0, 0, 255))
+
     curr_frame.pose = np.dot(Rt, prev_frame.pose)
 
     points4d = triangulate(
@@ -61,15 +69,8 @@ def process_frame(frame_img):
         node.add_frame(curr_frame, index1[i])
         node.add_frame(prev_frame, index2[i])
 
-    for point1, point2 in zip(curr_frame.points[index1], prev_frame.points[index2]):
-        pt1_x, pt1_y = denormalize_point(K, point1)
-        pt2_x, pt2_y = denormalize_point(K, point2)
-
-        cv2.circle(frame_img, (pt1_x, pt1_y), 3, (255, 0, 0))
-        cv2.line(frame_img, (pt1_x, pt1_y), (pt2_x, pt2_y), (0, 0, 255))
-
+    #display shit
     window.render(frame_img)
-
     space.display()
 
 
@@ -83,7 +84,7 @@ if __name__ == "__main__":
     except:
         print("NO U FOOL U NEED A FREAKING VIDEO")
         exit(1)
-        
+
     while vid.isOpened():
         result, frame = vid.read()
 
