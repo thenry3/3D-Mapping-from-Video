@@ -46,6 +46,33 @@ def process_frame(frame_img):
 
     index1, index2, Rt = match(curr_frame, prev_frame)
 
+    for i, idx in enumerate(index2):
+        if prev_frame.pts[idx] is not None:
+            prev_frame.pts[idx].add_frame(curr_frame, index1[i])
+
+    # filter4d = np.array([curr_frame.pts[i] is None for i in index1])
+
+    curr_frame.pose = np.dot(Rt, prev_frame.pose)
+
+    points4d = triangulate(
+        curr_frame.pose, prev_frame.pose, curr_frame.points[index1], prev_frame.points[index2])
+    # points4d = triangulate(Rt, np.eye(4), curr_frame.points[index1], prev_frame.points[index2])
+    # filter4d &= np.abs(points4d[:, 3]) > 0.005
+    points4d /= points4d[:, 3:]
+    # filter4d &= points4d[:, 2] > 0
+
+    # points4d = np.dot(np.linalg.inv(curr_frame.pose), points4d.T).T
+    filter4d = (np.abs(points4d[:, 3]) > 0.005) & (points4d[:, 2] > 0)
+
+    for i, pt in enumerate(points4d):
+        if not filter4d[i]:
+            continue
+        u, v = int(round(curr_frame.kpus[index1[i], 0])), int(round(curr_frame.kpus[index1[i], 1]))
+        node = Node(space, pt, frame_img[v, u])
+        node.add_frame(curr_frame, index1[i])
+        node.add_frame(prev_frame, index2[i])
+
+    #display shit
     for point1, point2 in zip(curr_frame.points[index1], prev_frame.points[index2]):
         pt1_x, pt1_y = denormalize_point(K, point1)
         pt2_x, pt2_y = denormalize_point(K, point2)
@@ -53,23 +80,9 @@ def process_frame(frame_img):
         cv2.circle(frame_img, (pt1_x, pt1_y), 3, (255, 0, 0))
         cv2.line(frame_img, (pt1_x, pt1_y), (pt2_x, pt2_y), (0, 0, 255))
 
-    curr_frame.pose = np.dot(Rt, prev_frame.pose)
+    # if curr_frame.ID >= 4:
+    #     error = space.optimize()
 
-    points4d = triangulate(
-        curr_frame.pose, prev_frame.pose, curr_frame.points[index1], prev_frame.points[index2])
-    points4d /= points4d[:, 3:]
-
-    # filter
-    filter4d = (np.abs(points4d[:, 3]) > 0.005) & (points4d[:, 2] > 0)
-
-    for i, pt in enumerate(points4d):
-        if not filter4d[i]:
-            continue
-        node = Node(space, pt)
-        node.add_frame(curr_frame, index1[i])
-        node.add_frame(prev_frame, index2[i])
-
-    #display shit
     window.render(frame_img)
     space.display()
 

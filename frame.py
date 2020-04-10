@@ -23,9 +23,11 @@ def denormalize_point(Kmatrix, point):
 def extractRt(frame):
     W = np.mat([[0, -1, 0], [1, 0, 0], [0, 0, 1]], dtype=float)
     U, d, Vt = np.linalg.svd(frame)
-    assert np.linalg.det(U) > 0
+
     if np.linalg.det(Vt) < 0:
         Vt *= -1.0
+    if np.linalg.det(U) < 0:
+        U *= -1.0
     R = np.dot(np.dot(U, W), Vt)
     if np.sum(R.diagonal()) < 0:
         R = np.dot(np.dot(U, W.T), Vt)
@@ -49,11 +51,13 @@ def match(frame1, frame2):
             pt1 = frame1.points[m1.queryIdx]
             pt2 = frame2.points[m1.trainIdx]
 
-            if np.linalg.norm((pt1 - pt2)) < 0.1:
-                index1.append(m1.queryIdx)
-                index2.append(m1.trainIdx)
+            if m1.distance < 32 and np.linalg.norm((pt1 - pt2)) < 0.1 * np.linalg.norm([frame1.w, frame1.h]):
+            # if np.linalg.norm((pt1 - pt2)) < 0.1:
+                if m1.queryIdx not in index1 and m1.trainIdx not in index2:
+                    index1.append(m1.queryIdx)
+                    index2.append(m1.trainIdx)
 
-                matched_points.append((pt1, pt2))
+                    matched_points.append((pt1, pt2))
 
     matched_points = np.array(matched_points)
     index1 = np.array(index1)
@@ -61,9 +65,9 @@ def match(frame1, frame2):
 
     # TBH also googled this heheh
     model, inliers = ransac((matched_points[:, 0], matched_points[:, 1]),
-                            EssentialMatrixTransform,
+                            FundamentalMatrixTransform,
                             min_samples=8,
-                            residual_threshold=0.005,
+                            residual_threshold=0.002,
                             max_trials=100)
     matched_points = matched_points[inliers]
 
@@ -78,9 +82,11 @@ class Frame():
         self.Kinv = np.linalg.inv(self.Kmatrix)
         self.frame_img = frame_img
         self.pose = IRt
+        self.h, self.w = frame_img.shape[0:2]
 
-        points, self.des = self.extract()
-        self.points = norm_points(self.Kinv, points)
+        self.kpus, self.des = self.extract()
+        self.points = norm_points(self.Kinv, self.kpus)
+        self.pts = [None] * len(self.points)
 
         self.ID = len(space.frames)
         space.frames.append(self)
