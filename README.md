@@ -4,7 +4,17 @@ well wat are the chances tht someones gonna read this. might as well have fun wh
 
 so i guess this is supposed to be a summary or story. well if y'all ~recruiters~people wanna know, i had a research lab interview at my school related to autonomous vehicles, and reading the description of what i needed to know, i saw SLAM. naturally i googled it and i came across it, and i googled a bunch of other stuff to make this project as well lmao.
 
+## usage cuz i cant expect u to know
+
+i use pipfiles because i really like using pipenv, but for all u guys and gals that dont, i have a requirements.txt in here for u. 
+o btw heres the usage lmao:
+
+```
+python slam.py test.mp4
+```
+
 ## some shit you need
+* python3 (maybe python2 works???) --> i did this in python3 and my pipfile says so, but test it out on python2 if you fancy that
 * [pangolin](https://github.com/uoip/pangolin) --> this gave me pain
 * opencv --> to analyze photos (god bless goodfeaturestotrack lmao)
 * pysdl2 --> dont u wanna see the cool little feature dots on ur video
