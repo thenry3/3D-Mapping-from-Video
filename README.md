@@ -9,8 +9,9 @@ so i guess this is supposed to be a summary or story. well if y'all ~recruiters~
 * opencv --> to analyze photos (god bless goodfeaturestotrack lmao)
 * pysdl2 --> dont u wanna see the cool little feature dots on ur video?
 
-oh ye please note compile pangolin on linux, such as the chad ubuntu. i rlly like macOS or OS X, whatever the proper name is, but U CANT COMPILE PANGOLIN FOR ~SHIT~ . this problem caused me like 6 hours of my time so ima save all you boys and girls out there some time.
+oh ye please note compile pangolin on linux, such as the chad ubuntu. i rlly like macOS or OS X, whatever the proper name is, but U CANT COMPILE PANGOLIN ~FOR SHIT~ . this problem caused me like 6 hours of my time so ima save all you boys and girls out there some time.
 
-## PICTURES CUZ THEYRE COOL
+## pictures cuz they cool
+![pic1](https://github.com/thenry3/3D-Mapping-from-Video/raw/master/screenshot.png)
 
 
