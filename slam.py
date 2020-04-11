@@ -3,7 +3,8 @@ import sys
 from window import Window
 import cv2
 from frame import Frame, match, denormalize_point, IRt
-from space import Space, Node
+from space import Space
+from node import Node
 
 # video resize dimensions
 # originally 1920 x 1080
