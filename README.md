@@ -13,5 +13,6 @@ oh ye please note compile pangolin on linux, such as the chad ubuntu. i rlly lik
 
 ## pictures cuz they cool
 ![pic1](https://github.com/thenry3/3D-Mapping-from-Video/raw/master/screenshot.png)
+![pic2](https://github.com/thenry3/3D-Mapping-from-Video/raw/master/screenshot1.png)
 
 
