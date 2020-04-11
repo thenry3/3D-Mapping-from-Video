@@ -2,7 +2,6 @@ import sys
 sys.path.append("lib")
 
 import pangolin
-import g2o
 import OpenGL.GL as gl
 import numpy as np
 from multiprocessing import Process, Queue
@@ -67,92 +66,6 @@ class Space():
         points = [node.location for node in self.nodes]
         colors = [node.color for node in self.nodes]
         self.queue.put((np.array(poses), np.array(points), np.array(colors) / 256.0))
-
-    #shitty
-    # def optimize(self):
-    #     optimizer = g2o.SparseOptimizer()
-    #     solver = g2o.OptimizationAlgorithmLevenberg(g2o.BlockSolverSE3(g2o.LinearSolverCholmodSE3()))
-    #     optimizer.set_algorithm(solver)
-
-    #     rob_kernel = g2o.RobustKernelHuber(np.sqrt(5.991))
-
-    #     if LOC_WINDOW == None:
-    #         local_frames = self.frames
-    #     else:
-    #         local_frames = self.frames[-LOC_WINDOW:]
-        
-    #     for frame in self.frames:
-    #         pose = frame.pose
-    #         cam = g2o.SBACam(g2o.SE3Quat(pose[0:3, 0:3], pose[0:3, 3]))
-    #         cam.set_cam(frame.Kmatrix[0][0], frame.Kmatrix[1][1], frame.Kmatrix[0][2], frame.Kmatrix[1][2], 1.0)
-
-    #         vcam = g2o.VertexCam()
-    #         vcam.set_id(frame.ID)
-    #         vcam.set_estimate(cam)
-    #         vcam.set_fixed(frame.ID <= 1 or frame not in local_frames)
-    #         optimizer.add_vertex(vcam)
-
-    #     OFFSET = 0x10000
-    #     for node in self.nodes:
-    #         if not any([frame in local_frames for frame in node.frames]):
-    #             continue
-
-    #         point = g2o.VertexSBAPointXYZ()
-    #         point.set_id(node.ID + OFFSET)
-    #         point.set_estimate(node.location[0:3])
-    #         point.set_marginalized(True)
-    #         point.set_fixed(False)
-    #         optimizer.add_vertex(point)
-
-    #         for frame in node.frames:
-    #             edge = g2o.EdgeProjectP2MC()
-    #             edge.set_vertex(0, point)
-    #             edge.set_vertex(1, optimizer.vertex(frame.ID))
-    #             uv = frame.kpus[frame.pts.index(node)]
-    #             edge.set_measurement(uv)
-    #             edge.set_information(np.eye(2))
-    #             edge.set_robust_kernel(rob_kernel)
-    #             optimizer.add_edge(edge)
-
-    #     optimizer.initialize_optimization()
-    #     optimizer.optimize(50)
-
-    #     for frame in self.frames:
-    #         est = optimizer.vertex(frame.ID).estimate()
-    #         R = est.rotation().matrix()
-    #         t = est.translation()
-    #         poseRt = np.eye(4)
-    #         poseRt[:3, :3] = R 
-    #         poseRt[:3, 3] = t
-    #         frame.pose = poseRt
-
-    #     new_points = []
-    #     for node in self.nodes:
-    #         vertex = optimizer.vertex(node.ID + OFFSET)
-    #         if vertex is None:
-    #             new_points.append(node)
-    #             continue
-    #         est = vertex.estimate()
-
-    #         old_node = len(node.frames) == 2 and node.frames[-1] not in local_frames
-
-    #         errors = []
-    #         for frame in node.frames:
-    #             uv = frame.kpus[frame.pts.index(node)]
-    #             projection = np.dot(np.dot(frame.Kmatrix, np.linalg.inv(frame.pose)[:3]), np.array([est[0], est[1], est[2], 1.0]))
-    #             projection = projection[0:2] / projection[2]
-    #             errors.append(np.linalg.norm(projection - uv))
-
-    #         if (old_node and np.mean(errors) > 30) or np.mean(errors) > 100:
-    #             node.remove()
-    #             continue
-
-    #         node.location = np.array(est)
-    #         new_points.append(node)
-
-    #     self.nodes = new_points
-
-    #     return optimizer.chi2()
 
 
 class Node():
