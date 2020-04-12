@@ -2,7 +2,7 @@
 
 well wat are the chances tht someones gonna read this. might as well have fun while writing this haha. anyway its like saturday after week 2 of spring quarter 2020 and its stupid quarantining season and i have nothing to do other than schoolwork, so this is what ive been doing in quarantine. i miss the vibe and everybody at school and its so depressing to be at home 24/7. was also looking forward to interning in seattle this summer but im gonna be home :'(
 
-so i guess this is supposed to be a summary or story. well if y'all ~recruiters~people wanna know, i had a research lab interview at my school related to autonomous vehicles, and reading the description of what i needed to know, i saw SLAM. naturally i googled it and i came across it, and i googled a bunch of other stuff to make this project as well lmao.
+so i guess this is supposed to be a summary or story. well if y'all ~recruiters~ people wanna know, i had a research lab interview at my school related to autonomous vehicles, and reading the description of what i needed to know, i saw SLAM. naturally i googled it and i came across it, and i googled a bunch of other stuff to make this project as well lmao.
 
 ## usage cuz i cant expect u to know
 
