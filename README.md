@@ -13,13 +13,13 @@ o btw heres the usage lmao:
 python slam.py test.mp4
 ```
 
-## some shit you need
+## some stuff you need
 * python3 (maybe python2 works???) --> i did this in python3 and my pipfile says so, but test it out on python2 if you fancy that
 * [pangolin](https://github.com/uoip/pangolin) --> this gave me pain
 * opencv --> to analyze photos (god bless goodfeaturestotrack lmao)
 * pysdl2 --> dont u wanna see the cool little feature dots on ur video
 
-oh ye please note compile pangolin on linux, such as the chad ubuntu. i rlly like macOS or OS X, whatever the proper name is, but U CANT COMPILE PANGOLIN ~FOR SHIT~  this problem caused me like 6 hours of my time so ima save all you boys and girls out there some time <3
+oh ye please note compile pangolin on linux, such as the chad ubuntu. i rlly like macOS or OS X, whatever the proper name is, but U CANT COMPILE PANGOLIN FOR ITS FREAKING LIFE. this problem caused me like 6 hours of my time so ima save all you boys and girls out there some time <3
 
 ## pictures cuz they cool
 ![pic1](https://github.com/thenry3/3D-Mapping-from-Video/raw/master/screenshots/screenshot.png)
