@@ -3,3 +3,5 @@ build
 *.lock
 lib
 __pycache__
+Pipfile
+*.so
